@@ -4,6 +4,7 @@ namespace white\craft\mailchimp;
 
 use Craft;
 use craft\base\Plugin;
+use white\craft\mailchimp\models\Settings;
 
 /**
  * Main MailChimp plugin class.
@@ -24,5 +25,17 @@ class MailChimpPlugin extends Plugin
             ),
             __METHOD__
         );
+    }
+    
+    protected function createSettingsModel()
+    {
+        return new Settings();
+    }
+
+    protected function settingsHtml()
+    {
+        return \Craft::$app->getView()->renderTemplate('mailchimp/settings.html', [
+            'settings' => $this->getSettings()
+        ]);
     }
 }

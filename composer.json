@@ -1,6 +1,6 @@
 {
     "name": "white-dev/craft3-mailchimp",
-    "description": "Craft CMS MailChimp plugin",
+    "description": "MailChimp integration for Craft CMS",
     "type": "craft-plugin",
     "version": "1.0.0",
     "license": "proprietary",
@@ -18,7 +18,7 @@
         "developer": "WHITE.nl",
         "developerUrl": "http://white.nl",
         "schemaVersion": "1.0.0",
-        "hasCpSettings": false,
+        "hasCpSettings": true,
         "hasCpSection": false,
         "class": "white\\craft\\mailchimp\\MailChimpPlugin"
     }
