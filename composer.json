@@ -5,7 +5,10 @@
     "version": "1.0.0",
     "license": "proprietary",
     "require": {
-        "craftcms/cms": "~3.0.0-beta.23"
+        "craftcms/cms": "~3.0.0-beta.23",
+        "guzzlehttp/guzzle": "~6.0",
+        "beberlei/assert": "^2.7",
+        "league/tactician": "^1.0"
     },
     "autoload": {
         "psr-4": {
