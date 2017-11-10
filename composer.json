@@ -9,7 +9,7 @@
     },
     "autoload": {
         "psr-4": {
-          "White\\Craft\\MailChimp\\": "src/"
+          "white\\craft\\mailchimp\\": "src/"
         }
     },
     "extra": {
@@ -20,6 +20,6 @@
         "schemaVersion": "1.0.0",
         "hasCpSettings": false,
         "hasCpSection": false,
-        "class": "White\\Craft\\MailChimp\\MailChimpPlugin"
+        "class": "white\\craft\\mailchimp\\MailChimpPlugin"
     }
 }

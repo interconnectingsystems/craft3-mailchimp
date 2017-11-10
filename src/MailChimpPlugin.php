@@ -1,6 +1,6 @@
 <?php
 
-namespace White\Craft\MailChimp;
+namespace white\craft\mailchimp;
 
 use Craft;
 use craft\base\Plugin;
