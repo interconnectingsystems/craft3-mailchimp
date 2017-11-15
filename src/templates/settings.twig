@@ -1,0 +1,21 @@
+{% import "_includes/forms" as forms %}
+
+{{ forms.textField({
+    first: true,
+    label: "API key"|t,
+    instructions: "You can obtain your API key in [your MailChimp control panel]({tokenHelpLink})."|t({
+        'tokenHelpLink': 'https://kb.mailchimp.com/integrations/api-integrations/about-api-keys#Find-or-Generate-Your-API-Key'
+    }),
+    name: 'apiKey',
+    placeholder: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-yy01',
+    value: settings.apiKey
+}) }}
+
+{{ forms.textField({
+    first: true,
+    label: "Default list ID"|t,
+    instructions: "Mailing list to use by default of no list ID specified during subscription or subscription check."|t,
+    name: 'defaultListId',
+    value: settings.defaultListId
+}) }}
+

@@ -7,12 +7,13 @@ use craft\base\Model;
 
 class Settings extends Model
 {
-    public $apiToken = null;
+    public $apiKey = null;
+    public $defaultListId = null;
     
     public function rules()
     {
         return [
-            [['apiToken'], 'required'],
+            [['apiKey'], 'required'],
         ];
     }
 }
