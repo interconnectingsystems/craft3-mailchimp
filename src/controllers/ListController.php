@@ -6,6 +6,7 @@ namespace white\craft\mailchimp\controllers;
 use Craft;
 use craft\web\Controller;
 use white\craft\mailchimp\client\commands\AddOrUpdateListMember;
+use white\craft\mailchimp\client\commands\GetAllLists;
 use white\craft\mailchimp\client\commands\GetListMember;
 use white\craft\mailchimp\client\MailChimpException;
 use white\craft\mailchimp\MailChimpPlugin;
@@ -19,16 +20,9 @@ class ListController extends Controller
     protected $allowAnonymous = ['subscribe', 'check-if-subscribed'];
     
     
-    
-    /** @var MailChimpClient */
-    private $client;
-
-    
-    public function init()
+    protected function getClient()
     {
-        parent::init();
-        
-        $this->client = MailChimpPlugin::getInstance()->getClient();
+        return MailChimpPlugin::getInstance()->getClient();
     }
     
     
@@ -82,7 +76,7 @@ class ListController extends Controller
                 if (empty($listId)) {
                     continue;
                 }
-                $this->client->send(new AddOrUpdateListMember($listId, $email, $memberData));
+                $this->getClient()->send(new AddOrUpdateListMember($listId, $email, $memberData));
             }
 
             if ($request->getIsAjax()) {
@@ -133,7 +127,7 @@ class ListController extends Controller
             
             $member = null;
             try {
-                $member = $this->client->send(new GetListMember($listId, $email));
+                $member = $this->getClient()->send(new GetListMember($listId, $email));
             } catch (MailChimpException $exception) {
                 if ($exception->getCode() != 404) {
                     throw $exception;
@@ -154,5 +148,32 @@ class ListController extends Controller
             }
             return $response;
         }
+    }
+
+    public function actionGetLists()
+    {
+        $request = Craft::$app->getRequest();
+        $apiKey = $request->getParam('apiKey');
+        if (!$apiKey) {
+            throw new BadRequestHttpException();
+        }
+        
+        $response = $this->getClient()->createClient($apiKey)
+            ->send(new GetAllLists());
+        
+        $data = [];
+        foreach ($response['lists'] as $list) {
+            $data[] = [
+                'id' => $list['id'],
+                'name' => $list['name'],
+                'date_created' => $list['date_created'],
+                'list_rating' => $list['list_rating'],
+                'subscribe_url_short' => $list['subscribe_url_short'],
+                'subscribe_url_long' => $list['subscribe_url_long'],
+                'visibility' => $list['visibility'],
+                'stats' => $list['stats'],
+            ];
+        }
+        return $this->asJson($data);
     }
 }

@@ -6,16 +6,85 @@
     instructions: "You can obtain your API key in [your MailChimp control panel]({tokenHelpLink})."|t({
         'tokenHelpLink': 'https://kb.mailchimp.com/integrations/api-integrations/about-api-keys#Find-or-Generate-Your-API-Key'
     }),
+    id: 'mailchimp-api-key',
     name: 'apiKey',
     placeholder: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-yy01',
     value: settings.apiKey
 }) }}
 
 {{ forms.textField({
-    first: true,
-    label: "Default list ID"|t,
+    label: "Default list"|t,
     instructions: "Mailing list to use by default of no list ID specified during subscription or subscription check."|t,
+    id: 'mailchimp-default-list-id',
     name: 'defaultListId',
     value: settings.defaultListId
 }) }}
+{{ forms.selectField({
+    label: "Default list"|t,
+    instructions: "Mailing list to use by default of no list ID specified during subscription or subscription check."|t,
+    id: 'mailchimp-list-select',
+    value: settings.defaultListId,
+    fieldClass: 'hidden'
+}) }}
 
+<script>
+{% set js %}
+
+    var lastApiKey = null;
+    var apiKeyInput = jQuery('#settings-mailchimp-api-key');
+    var listIdSelect = jQuery('#settings-mailchimp-list-select');
+    var listIdSelectField = jQuery('#settings-mailchimp-list-select-field');
+    var litIdInput = jQuery('#settings-mailchimp-default-list-id');
+    var litIdInputField = jQuery('#settings-mailchimp-default-list-id-field');
+    
+    var loadLists = function() {
+        jQuery.ajax('', {
+            data: {
+                'action': 'mailchimp/list/get-lists',
+                'apiKey': apiKeyInput.val()
+            },
+            dataType: 'json',
+        }).done(function(data) {
+            console.log(data);
+            
+            apiKeyInput.closest('.input').removeClass('errors');
+            listIdSelectField.removeClass('hidden');
+            litIdInputField.addClass('hidden');
+
+            listIdSelect.empty();
+            listIdSelect.append(
+                jQuery('<option/>').attr('value', '').text('')
+            );
+            for (var i in data) {
+                if (data.hasOwnProperty(i)) {
+                    listIdSelect.append(
+                        jQuery('<option/>').attr('value', data[i].id).text(
+                            data[i].name + ' (' + data[i].stats.member_count + ')'
+                        )
+                    );
+                }
+            }
+            listIdSelect.val(litIdInput.val());
+        }).fail(function() {
+            apiKeyInput.closest('.input').addClass('errors');
+            litIdInputField.removeClass('hidden');
+            listIdSelectField.addClass('hidden');
+        });
+    };
+
+    loadLists();
+    apiKeyInput.bind('change keyup input', function() {
+        var value = jQuery(this).val();
+        if (value !== lastApiKey) {
+            lastApiKey = value;
+            loadLists();
+        }
+    });
+
+    listIdSelect.change(function() {
+        litIdInput.val(jQuery(this).val());
+    });
+    
+{% endset %}
+</script>
+{% do view.registerJs(js) %}

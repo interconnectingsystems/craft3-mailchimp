@@ -19,28 +19,25 @@ class MailChimpClient extends Component
 {
     /** @var ClientInterface */
     private $client;
-
-    public function init()
+    
+    protected function getGuzzleClient()
     {
-        $apiKey = MailChimpPlugin::getInstance()->getSettings()->apiKey;
-        
+        return new Client();
+    }
+    
+    public function createClient($apiKey)
+    {
         $client = $this->getGuzzleClient();
 
         $stack = new HandlerStack();
         $stack->push(new ResponseHandler());
         $stack->push(RequestHandler::fromApiKey($apiKey));
-        
+
         $stack->setHandler(function(RequestInterface $request, array $options) use ($client) {
             return $client->sendAsync($request, $options);
         });
 
-        $this->client = new HandlerStackClient($stack);
-    }
-
-    
-    protected function getGuzzleClient()
-    {
-        return new Client();
+        return new HandlerStackClient($stack);
     }
 
     /**
@@ -48,6 +45,11 @@ class MailChimpClient extends Component
      */
     public function getHttpClient()
     {
+        if ($this->client === null) {
+            $apiKey = MailChimpPlugin::getInstance()->getSettings()->apiKey;
+            $this->client = $this->createClient($apiKey);
+        }
+        
         return $this->client;
     }
 
