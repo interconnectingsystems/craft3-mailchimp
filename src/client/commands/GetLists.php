@@ -4,7 +4,7 @@
 namespace white\craft\mailchimp\client\commands;
 
 
-class GetAllLists extends BaseCommand
+class GetLists extends BaseCommand
 {
     public function __construct(array $options = [])
     {

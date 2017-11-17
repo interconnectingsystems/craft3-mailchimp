@@ -4,15 +4,7 @@ namespace white\craft\mailchimp;
 
 use Craft;
 use craft\base\Plugin;
-use white\craft\mailchimp\client\commands\AddOrUpdateListMember;
-use white\craft\mailchimp\client\commands\CreateBatchOperation;
-use white\craft\mailchimp\client\commands\GetAllLists;
-use white\craft\mailchimp\client\commands\GetBatchOperationStatus;
-use white\craft\mailchimp\client\commands\GetList;
-use white\craft\mailchimp\client\commands\GetListMember;
-use white\craft\mailchimp\client\commands\GetListMembers;
 use white\craft\mailchimp\models\Settings;
-use white\craft\mailchimp\queue\MailChimpBatchJob;
 use white\craft\mailchimp\services\MailChimpClient;
 
 /**

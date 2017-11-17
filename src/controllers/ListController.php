@@ -6,7 +6,7 @@ namespace white\craft\mailchimp\controllers;
 use Craft;
 use craft\web\Controller;
 use white\craft\mailchimp\client\commands\AddOrUpdateListMember;
-use white\craft\mailchimp\client\commands\GetAllLists;
+use white\craft\mailchimp\client\commands\GetLists;
 use white\craft\mailchimp\client\commands\GetListMember;
 use white\craft\mailchimp\client\MailChimpException;
 use white\craft\mailchimp\MailChimpPlugin;
@@ -159,7 +159,12 @@ class ListController extends Controller
         }
         
         $response = $this->getClient()->createClient($apiKey)
-            ->send(new GetAllLists());
+            ->send(new GetLists([
+                'count' => 100,
+                'fields' => 'lists.id,lists.name,lists.date_created,lists.list_rating,lists.visibility,lists.stats.member_count',
+                'sort_field' => 'date_created',
+                'sort_dir' => 'DESC',
+            ]));
         
         $data = [];
         foreach ($response['lists'] as $list) {
@@ -168,8 +173,6 @@ class ListController extends Controller
                 'name' => $list['name'],
                 'date_created' => $list['date_created'],
                 'list_rating' => $list['list_rating'],
-                'subscribe_url_short' => $list['subscribe_url_short'],
-                'subscribe_url_long' => $list['subscribe_url_long'],
                 'visibility' => $list['visibility'],
                 'stats' => $list['stats'],
             ];
