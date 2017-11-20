@@ -27,22 +27,25 @@ To install the plugin, follow these instructions.
 
 To get a MailChimp API key, follow these steps
 
-1. Login to MailChimp, go to Account → Extras → API Keys then 
+1. Login to MailChimp, go to Account → Extras → API Keys 
 
 2. Create a new key, or reuse an existing key
 
 
 ## Setup
 
-After installing the plugin, go to Settings → Plugins → MailChimp in the Craft admin panel. Add your API key and then select the default MailChimp list to add/update subscribers.
+1. After installing the plugin, go to Settings → Plugins → MailChimp in the Craft admin panel.
+
+2. Add your API key and then select the default MailChimp list to add/update subscribers.
 
 
 ## Examples
 
 These API requests are covered:
 
-https://developer.mailchimp.com/documentation/mailchimp/reference/lists/
-https://developer.mailchimp.com/documentation/mailchimp/reference/lists/members/
+* https://developer.mailchimp.com/documentation/mailchimp/reference/lists/
+
+* https://developer.mailchimp.com/documentation/mailchimp/reference/lists/members/
 
 
 ## Support
