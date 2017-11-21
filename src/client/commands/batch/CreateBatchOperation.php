@@ -1,12 +1,13 @@
 <?php
 
 
-namespace white\craft\mailchimp\client\commands;
-
+namespace white\craft\mailchimp\client\commands\batch;
 
 use Assert\Assertion;
+use white\craft\mailchimp\client\commands\Command;
+use white\craft\mailchimp\client\commands\CommandInterface;
 
-class CreateBatchOperation extends BaseCommand
+class CreateBatchOperation extends Command
 {
     /**
      * @param CommandInterface[] $operations

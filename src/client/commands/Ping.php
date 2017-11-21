@@ -3,7 +3,7 @@
 
 namespace white\craft\mailchimp\client\commands;
 
-class Ping extends BaseCommand
+class Ping extends Command
 {
     public function __construct()
     {

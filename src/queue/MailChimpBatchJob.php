@@ -4,7 +4,7 @@
 namespace white\craft\mailchimp\queue;
 
 use craft\queue\BaseJob;
-use white\craft\mailchimp\client\commands\GetBatchOperationStatus;
+use white\craft\mailchimp\client\commands\batch\GetBatchOperationStatus;
 use white\craft\mailchimp\MailChimpPlugin;
 use yii\queue\RetryableJob;
 

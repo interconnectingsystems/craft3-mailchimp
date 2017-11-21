@@ -6,7 +6,7 @@ namespace white\craft\mailchimp\client\commands;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Uri;
 
-abstract class BaseCommand extends Request implements CommandInterface
+class Command extends Request implements CommandInterface
 { 
     private $operationId;
 

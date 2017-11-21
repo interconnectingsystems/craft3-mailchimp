@@ -1,10 +1,12 @@
 <?php
 
 
-namespace white\craft\mailchimp\client\commands;
+namespace white\craft\mailchimp\client\commands\lists\members;
 
+use white\craft\mailchimp\client\commands\Command;
+use white\craft\mailchimp\client\commands\CommandInterface;
 
-class AddOrUpdateListMember extends BaseCommand
+class AddOrUpdateListMember extends Command
 {
     public function __construct($listId, $memberEmail, array $memberData)
     {

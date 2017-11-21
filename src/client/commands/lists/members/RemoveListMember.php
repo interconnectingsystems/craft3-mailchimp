@@ -1,10 +1,12 @@
 <?php
 
 
-namespace white\craft\mailchimp\client\commands;
+namespace white\craft\mailchimp\client\commands\lists\members;
 
+use white\craft\mailchimp\client\commands\Command;
+use white\craft\mailchimp\client\commands\CommandInterface;
 
-class RemoveListMember extends BaseCommand
+class RemoveListMember extends Command
 {
     public function __construct($listId, $memberEmail)
     {

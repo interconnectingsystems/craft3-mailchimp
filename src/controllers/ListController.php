@@ -5,9 +5,9 @@ namespace white\craft\mailchimp\controllers;
 
 use Craft;
 use craft\web\Controller;
-use white\craft\mailchimp\client\commands\AddOrUpdateListMember;
-use white\craft\mailchimp\client\commands\GetLists;
-use white\craft\mailchimp\client\commands\GetListMember;
+use white\craft\mailchimp\client\commands\lists\GetLists;
+use white\craft\mailchimp\client\commands\lists\members\AddOrUpdateListMember;
+use white\craft\mailchimp\client\commands\lists\members\GetListMember;
 use white\craft\mailchimp\client\MailChimpException;
 use white\craft\mailchimp\MailChimpPlugin;
 use white\craft\mailchimp\services\MailChimpClient;
