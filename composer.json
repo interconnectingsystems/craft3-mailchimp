@@ -2,8 +2,7 @@
     "name": "white-nl/craft3-mailchimp",
     "description": "MailChimp integration for Craft CMS",
     "type": "craft-plugin",
-    "version": "1.0.0",
-    "license": "proprietary",
+    "license": "BSD-3-Clause",
     "require": {
         "craftcms/cms": "~3.0.0-beta.23",
         "guzzlehttp/guzzle": "~6.0",
