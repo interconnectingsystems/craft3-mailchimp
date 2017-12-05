@@ -1,5 +1,5 @@
 {
-    "name": "white-dev/craft3-mailchimp",
+    "name": "white-nl/craft3-mailchimp",
     "description": "MailChimp integration for Craft CMS",
     "type": "craft-plugin",
     "version": "1.0.0",
