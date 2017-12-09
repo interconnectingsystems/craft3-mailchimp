@@ -20,8 +20,7 @@ use yii\web\Response;
 class ListController extends Controller
 {
     protected $allowAnonymous = ['subscribe', 'check-if-subscribed'];
-    
-    
+
     private function getClient()
     {
         return MailChimpPlugin::getInstance()->getClient();
@@ -54,38 +53,6 @@ class ListController extends Controller
         } catch (Exception $exception) {
             return $this->renderErrorResponse($request, $exception);
         }
-    }
-
-    /**
-     * @return Response
-     * @throws BadRequestHttpException
-     */
-    public function actionCheckIfSubscribed()
-    {
-        $request = Craft::$app->getRequest();
-
-        try {
-            $listIds = $this->getListIds($request);
-            $email = $this->getEmail($request);
-            $member = $this->getMember($listIds, $email);
-            return $this->asJson(['subscribed' => (bool)$member]);
-        } catch (Exception $exception) {
-            return $this->renderErrorResponse($request, $exception);
-        }
-    }
-
-    /**
-     * @return Response
-     * @throws BadRequestHttpException
-     */
-    public function actionGetLists()
-    {
-        $request = Craft::$app->getRequest();
-
-        $apiKey = $this->getApiKey($request);
-        $lists = $this->getLists($apiKey);
-
-        return $this->parseLists($lists);
     }
 
     /**
@@ -162,26 +129,6 @@ class ListController extends Controller
     }
 
     /**
-     * @param $listIds
-     * @param $email
-     * @return array
-     * @throws MailChimpException
-     */
-    private function getMember($listIds, $email): array
-    {
-        $member = null;
-
-        try {
-            $member = $this->getClient()->send(new GetListMember($listIds, $email));
-        } catch (MailChimpException $exception) {
-            if ($exception->getCode() != 404) {
-                throw $exception;
-            }
-        }
-        return $member;
-    }
-
-    /**
      * @param string $listIds
      * @param string $email
      * @param array $memberData
@@ -242,6 +189,58 @@ class ListController extends Controller
         }
 
         return $response;
+    }
+
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     */
+    public function actionCheckIfSubscribed()
+    {
+        $request = Craft::$app->getRequest();
+
+        try {
+            $listIds = $this->getListIds($request);
+            $email = $this->getEmail($request);
+            $member = $this->getMember($listIds, $email);
+            return $this->asJson(['subscribed' => (bool)$member]);
+        } catch (Exception $exception) {
+            return $this->renderErrorResponse($request, $exception);
+        }
+    }
+
+    /**
+     * @param $listIds
+     * @param $email
+     * @return array
+     * @throws MailChimpException
+     */
+    private function getMember($listIds, $email): array
+    {
+        $member = null;
+
+        try {
+            $member = $this->getClient()->send(new GetListMember($listIds, $email));
+        } catch (MailChimpException $exception) {
+            if ($exception->getCode() != 404) {
+                throw $exception;
+            }
+        }
+        return $member;
+    }
+
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     */
+    public function actionGetLists()
+    {
+        $request = Craft::$app->getRequest();
+
+        $apiKey = $this->getApiKey($request);
+        $lists = $this->getLists($apiKey);
+
+        return $this->parseLists($lists);
     }
 
     /**
