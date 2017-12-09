@@ -112,10 +112,10 @@ class ListController extends Controller
     {
         $request = Craft::$app->getRequest();
         try {
-            $listId = $request->getValidatedBodyParam('listId');
-            if (!$listId) {
-                $listId = MailChimpPlugin::getInstance()->getSettings()->defaultListId;
-                if (!$listId) {
+            $listIds = $request->getValidatedBodyParam('listId');
+            if (!$listIds) {
+                $listIds = MailChimpPlugin::getInstance()->getSettings()->defaultListId;
+                if (!$listIds) {
                     throw new BadRequestHttpException("Target MailChimp list ID not found.");
                 }
             }
@@ -127,7 +127,7 @@ class ListController extends Controller
             
             $member = null;
             try {
-                $member = $this->getClient()->send(new GetListMember($listId, $email));
+                $member = $this->getClient()->send(new GetListMember($listIds, $email));
             } catch (MailChimpException $exception) {
                 if ($exception->getCode() != 404) {
                     throw $exception;
