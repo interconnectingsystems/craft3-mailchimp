@@ -33,14 +33,8 @@ class ListController extends Controller
             if (!$request->getIsPost()) {
                 throw new MethodNotAllowedHttpException();
             }
-            
-            $listIds = $request->getValidatedBodyParam('listId');
-            if (!$listIds) {
-                $listIds = MailChimpPlugin::getInstance()->getSettings()->defaultListId;
-                if (!$listIds) {
-                    throw new BadRequestHttpException("Target MailChimp list ID not found.");
-                }
-            }
+
+            $listIds = $this->getListIds($request);
 
             $email = $request->getParam('email');
             if (!$email) {
@@ -112,13 +106,7 @@ class ListController extends Controller
     {
         $request = Craft::$app->getRequest();
         try {
-            $listIds = $request->getValidatedBodyParam('listId');
-            if (!$listIds) {
-                $listIds = MailChimpPlugin::getInstance()->getSettings()->defaultListId;
-                if (!$listIds) {
-                    throw new BadRequestHttpException("Target MailChimp list ID not found.");
-                }
-            }
+            $listIds = $this->getListIds($request);
 
             $email = $request->getParam('email');
             if (!$email) {
@@ -178,5 +166,25 @@ class ListController extends Controller
             ];
         }
         return $this->asJson($data);
+    }
+
+    /**
+     * @param $request
+     * @return null
+     * @throws BadRequestHttpException
+     */
+    private function getListIds($request): null
+    {
+        $listIds = $request->getValidatedBodyParam('listId');
+
+        if (!$listIds) {
+            $listIds = MailChimpPlugin::getInstance()->getSettings()->defaultListId;
+        }
+
+        if (!$listIds) {
+            throw new BadRequestHttpException("Target MailChimp list ID not found.");
+        }
+
+        return $listIds;
     }
 }
