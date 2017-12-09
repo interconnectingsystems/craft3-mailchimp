@@ -82,31 +82,10 @@ class ListController extends Controller
     {
         $request = Craft::$app->getRequest();
 
-        $apiKey = $request->getParam('apiKey');
-        if (!$apiKey) {
-            throw new BadRequestHttpException();
-        }
-        
-        $response = $this->getClient()->createClient($apiKey)
-            ->send(new GetLists([
-                'count' => 100,
-                'fields' => 'lists.id,lists.name,lists.date_created,lists.list_rating,lists.visibility,lists.stats.member_count',
-                'sort_field' => 'date_created',
-                'sort_dir' => 'DESC',
-            ]));
-        
-        $data = [];
-        foreach ($response['lists'] as $list) {
-            $data[] = [
-                'id' => $list['id'],
-                'name' => $list['name'],
-                'date_created' => $list['date_created'],
-                'list_rating' => $list['list_rating'],
-                'visibility' => $list['visibility'],
-                'stats' => $list['stats'],
-            ];
-        }
-        return $this->asJson($data);
+        $apiKey = $this->getApiKey($request);
+        $lists = $this->getLists($apiKey);
+
+        return $this->parseLists($lists);
     }
 
     /**
@@ -263,5 +242,57 @@ class ListController extends Controller
         }
 
         return $response;
+    }
+
+    /**
+     * @param $request
+     * @return mixed
+     * @throws BadRequestHttpException
+     */
+    private function getApiKey($request)
+    {
+        $apiKey = $request->getParam('apiKey');
+        if (!$apiKey) {
+            throw new BadRequestHttpException();
+        }
+        return $apiKey;
+    }
+
+    /**
+     * @param $apiKey
+     * @return mixed|\Psr\Http\Message\ResponseInterface
+     */
+    private function getLists($apiKey)
+    {
+        $response = $this->getClient()->createClient($apiKey)
+            ->send(new GetLists([
+                'count' => 100,
+                'fields' => 'lists.id,lists.name,lists.date_created,lists.list_rating,lists.visibility,lists.stats.member_count',
+                'sort_field' => 'date_created',
+                'sort_dir' => 'DESC',
+            ]));
+        return $response;
+    }
+
+    /**
+     * @param $lists
+     * @return Response
+     */
+    private function parseLists($lists): Response
+    {
+        $data = [];
+
+        foreach ($lists['lists'] as $list) {
+            $data[] = [
+                'id' => $list['id'],
+                'name' => $list['name'],
+                'date_created' => $list['date_created'],
+                'list_rating' => $list['list_rating'],
+                'visibility' => $list['visibility'],
+                'stats' => $list['stats'],
+            ];
+        }
+
+        return $this->asJson($data);
     }
 }
