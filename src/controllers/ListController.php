@@ -35,11 +35,8 @@ class ListController extends Controller
             }
 
             $listIds = $this->getListIds($request);
+            $email = $this->getEmail($request);
 
-            $email = $request->getParam('email');
-            if (!$email) {
-                throw new BadRequestHttpException("Email address is not specified.");
-            }
             $memberData = [
                 'email_address' => $email,
                 'status_if_new' => $request->getValidatedBodyParam('status') ?? 'subscribed',
@@ -107,11 +104,7 @@ class ListController extends Controller
         $request = Craft::$app->getRequest();
         try {
             $listIds = $this->getListIds($request);
-
-            $email = $request->getParam('email');
-            if (!$email) {
-                throw new BadRequestHttpException("Email address is not specified.");
-            }
+            $email = $this->getEmail($request);
             
             $member = null;
             try {
@@ -186,5 +179,21 @@ class ListController extends Controller
         }
 
         return $listIds;
+    }
+
+    /**
+     * @param $request
+     * @return mixed
+     * @throws BadRequestHttpException
+     */
+    private function getEmail($request)
+    {
+        $email = $request->getParam('email');
+
+        if (!$email) {
+            throw new BadRequestHttpException("Email address is not specified.");
+        }
+
+        return $email;
     }
 }
