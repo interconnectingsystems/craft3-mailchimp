@@ -22,79 +22,66 @@ class ListController extends Controller
     protected $allowAnonymous = ['subscribe', 'check-if-subscribed'];
     
     
-    protected function getClient()
+    private function getClient()
     {
         return MailChimpPlugin::getInstance()->getClient();
     }
 
-
     /**
      * @return Response
      * @throws BadRequestHttpException
-     * @throws MethodNotAllowedHttpException
      */
     public function actionSubscribe()
     {
         $request = Craft::$app->getRequest();
 
-        if (!$request->getIsPost()) {
-            throw new MethodNotAllowedHttpException();
-        }
-
         try {
+            if (!$request->getIsPost()) {
+                throw new MethodNotAllowedHttpException();
+            }
+
             $listIds = $this->getListIds($request);
             $email = $this->getEmail($request);
             $memberData = $this->getMemberData($email, $request);
             $this->addOrUpdateListMembers($listIds, $email, $memberData);
 
-            $response = $this->renderSuccessResponse(
+            return $this->renderSuccessResponse(
                 $request,
+                ['success' => true],
                 $message = Craft::t('mailchimp', 'Subscribed successfully.')
             );
 
         } catch (Exception $exception) {
-            $response = $this->renderErrorResponse($request, $exception);
+            return $this->renderErrorResponse($request, $exception);
         }
-
-        return $response;
     }
-    
-    
+
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     */
     public function actionCheckIfSubscribed()
     {
         $request = Craft::$app->getRequest();
+
         try {
             $listIds = $this->getListIds($request);
             $email = $this->getEmail($request);
-            
-            $member = null;
-            try {
-                $member = $this->getClient()->send(new GetListMember($listIds, $email));
-            } catch (MailChimpException $exception) {
-                if ($exception->getCode() != 404) {
-                    throw $exception;
-                }
-            }
-            
-            return $this->asJson([
-                'subscribed' => (bool)$member,
-            ]);
+            $member = $this->getMember($listIds, $email);
+            return $this->asJson(['subscribed' => (bool)$member]);
         } catch (Exception $exception) {
-            $response = $this->asJson([
-                'error' => $exception->getMessage(),
-                'code' => $exception->getCode(),
-            ])->setStatusCode(500);
-            
-            if ($exception instanceof HttpException) {
-                $response->setStatusCode($exception->statusCode);
-            }
-            return $response;
+            return $this->renderErrorResponse($request, $exception);
         }
     }
 
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     */
     public function actionGetLists()
     {
         $request = Craft::$app->getRequest();
+
         $apiKey = $request->getParam('apiKey');
         if (!$apiKey) {
             throw new BadRequestHttpException();
@@ -196,6 +183,26 @@ class ListController extends Controller
     }
 
     /**
+     * @param $listIds
+     * @param $email
+     * @return array
+     * @throws MailChimpException
+     */
+    private function getMember($listIds, $email): array
+    {
+        $member = null;
+
+        try {
+            $member = $this->getClient()->send(new GetListMember($listIds, $email));
+        } catch (MailChimpException $exception) {
+            if ($exception->getCode() != 404) {
+                throw $exception;
+            }
+        }
+        return $member;
+    }
+
+    /**
      * @param string $listIds
      * @param string $email
      * @param array $memberData
@@ -212,17 +219,16 @@ class ListController extends Controller
     }
 
     /**
-     * @param $request
+     * @param Request $request
+     * @param $data
      * @param string $message
      * @return Response
      * @throws BadRequestHttpException
      */
-    private function renderSuccessResponse(Request $request, string $message): Response
+    private function renderSuccessResponse(Request $request, $data, string $message): Response
     {
         if ($request->getIsAjax()) {
-            $response = $this->asJson([
-                'success' => true,
-            ]);
+            $response = $this->asJson($data);
         } else {
             Craft::$app->getSession()->setNotice($message);
             $response = $this->redirectToPostedUrl();
@@ -246,6 +252,10 @@ class ListController extends Controller
             ]);
 
             $response->setStatusCode(500);
+
+            if ($exception instanceof HttpException) {
+                $response->setStatusCode($exception->statusCode);
+            }
 
         } else {
             Craft::$app->getSession()->setError($exception->getMessage());
