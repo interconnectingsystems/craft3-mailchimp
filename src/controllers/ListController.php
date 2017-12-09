@@ -42,12 +42,12 @@ class ListController extends Controller
             $this->addOrUpdateListMembers($listIds, $email, $memberData);
 
             if ($request->getIsAjax()) {
-                return $this->asJson([
+                $response = $this->asJson([
                     'success' => true,
                 ]);
             } else {
                 Craft::$app->getSession()->setNotice(Craft::t('mailchimp', 'Subscribed successfully.'));
-                return $this->redirectToPostedUrl();
+                $response = $this->redirectToPostedUrl();
             }
             
         } catch (Exception $exception) {
@@ -56,17 +56,16 @@ class ListController extends Controller
                 $response = $this->asJson([
                     'error' => $exception->getMessage(),
                     'code' => $exception->getCode(),
-                ])->setStatusCode(500);
+                ]);
 
-                if ($exception instanceof HttpException) {
-                    $response->setStatusCode($exception->statusCode);
-                }
-                return $response;
+                $response->setStatusCode($exception instanceof HttpException ? $exception->statusCode : 500);
             } else {
                 Craft::$app->getSession()->setError($exception->getMessage());
-                return $this->redirectToPostedUrl();
+                $response = $this->redirectToPostedUrl();
             }
         }
+
+        return $response;
     }
     
     
