@@ -5,12 +5,12 @@ namespace white\craft\mailchimp\controllers;
 
 use Craft;
 use craft\web\Controller;
+use Exception;
 use white\craft\mailchimp\client\commands\lists\GetLists;
 use white\craft\mailchimp\client\commands\lists\members\AddOrUpdateListMember;
 use white\craft\mailchimp\client\commands\lists\members\GetListMember;
 use white\craft\mailchimp\client\MailChimpException;
 use white\craft\mailchimp\MailChimpPlugin;
-use white\craft\mailchimp\services\MailChimpClient;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\MethodNotAllowedHttpException;
@@ -29,6 +29,7 @@ class ListController extends Controller
     public function actionSubscribe()
     {
         $request = Craft::$app->getRequest();
+
         try {
             if (!$request->getIsPost()) {
                 throw new MethodNotAllowedHttpException();
@@ -38,12 +39,7 @@ class ListController extends Controller
             $email = $this->getEmail($request);
             $memberData = $this->getMemberData($email, $request);
 
-            foreach (explode(',', $listIds) as $listId) {
-                if (empty($listId)) {
-                    continue;
-                }
-                $this->getClient()->send(new AddOrUpdateListMember($listId, $email, $memberData));
-            }
+            $this->addOrUpdateListMembers($listIds, $email, $memberData);
 
             if ($request->getIsAjax()) {
                 return $this->asJson([
@@ -54,7 +50,7 @@ class ListController extends Controller
                 return $this->redirectToPostedUrl();
             }
             
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             
             if ($request->getIsAjax()) {
                 $response = $this->asJson([
@@ -93,7 +89,7 @@ class ListController extends Controller
             return $this->asJson([
                 'subscribed' => (bool)$member,
             ]);
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             $response = $this->asJson([
                 'error' => $exception->getMessage(),
                 'code' => $exception->getCode(),
@@ -207,5 +203,21 @@ class ListController extends Controller
         }
 
         return $memberData;
+    }
+
+    /**
+     * @param string $listIds
+     * @param string $email
+     * @param array $memberData
+     */
+    private function addOrUpdateListMembers(string $listIds, string $email, array $memberData): void
+    {
+        foreach (explode(',', $listIds) as $listId) {
+            if (empty($listId)) {
+                continue;
+            }
+
+            $this->getClient()->send(new AddOrUpdateListMember($listId, $email, $memberData));
+        }
     }
 }
