@@ -5,6 +5,7 @@ namespace white\craft\mailchimp\controllers;
 
 use Craft;
 use craft\web\Controller;
+use craft\web\Request;
 use Exception;
 use white\craft\mailchimp\client\commands\lists\GetLists;
 use white\craft\mailchimp\client\commands\lists\members\AddOrUpdateListMember;
@@ -14,6 +15,7 @@ use white\craft\mailchimp\MailChimpPlugin;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\MethodNotAllowedHttpException;
+use yii\web\Response;
 
 class ListController extends Controller
 {
@@ -24,45 +26,34 @@ class ListController extends Controller
     {
         return MailChimpPlugin::getInstance()->getClient();
     }
-    
-    
+
+
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     * @throws MethodNotAllowedHttpException
+     */
     public function actionSubscribe()
     {
         $request = Craft::$app->getRequest();
 
-        try {
-            if (!$request->getIsPost()) {
-                throw new MethodNotAllowedHttpException();
-            }
+        if (!$request->getIsPost()) {
+            throw new MethodNotAllowedHttpException();
+        }
 
+        try {
             $listIds = $this->getListIds($request);
             $email = $this->getEmail($request);
             $memberData = $this->getMemberData($email, $request);
-
             $this->addOrUpdateListMembers($listIds, $email, $memberData);
 
-            if ($request->getIsAjax()) {
-                $response = $this->asJson([
-                    'success' => true,
-                ]);
-            } else {
-                Craft::$app->getSession()->setNotice(Craft::t('mailchimp', 'Subscribed successfully.'));
-                $response = $this->redirectToPostedUrl();
-            }
-            
-        } catch (Exception $exception) {
-            
-            if ($request->getIsAjax()) {
-                $response = $this->asJson([
-                    'error' => $exception->getMessage(),
-                    'code' => $exception->getCode(),
-                ]);
+            $response = $this->renderSuccessResponse(
+                $request,
+                $message = Craft::t('mailchimp', 'Subscribed successfully.')
+            );
 
-                $response->setStatusCode($exception instanceof HttpException ? $exception->statusCode : 500);
-            } else {
-                Craft::$app->getSession()->setError($exception->getMessage());
-                $response = $this->redirectToPostedUrl();
-            }
+        } catch (Exception $exception) {
+            $response = $this->renderErrorResponse($request, $exception);
         }
 
         return $response;
@@ -156,7 +147,7 @@ class ListController extends Controller
      * @return mixed
      * @throws BadRequestHttpException
      */
-    private function getEmail($request)
+    private function getEmail(Request $request)
     {
         $email = $request->getParam('email');
 
@@ -172,7 +163,7 @@ class ListController extends Controller
      * @param $request
      * @return array
      */
-    private function getMemberData($email, $request): array
+    private function getMemberData(string $email, Request $request): array
     {
         $memberData = [
             'email_address' => $email,
@@ -218,5 +209,49 @@ class ListController extends Controller
 
             $this->getClient()->send(new AddOrUpdateListMember($listId, $email, $memberData));
         }
+    }
+
+    /**
+     * @param $request
+     * @param string $message
+     * @return Response
+     * @throws BadRequestHttpException
+     */
+    private function renderSuccessResponse(Request $request, string $message): Response
+    {
+        if ($request->getIsAjax()) {
+            $response = $this->asJson([
+                'success' => true,
+            ]);
+        } else {
+            Craft::$app->getSession()->setNotice($message);
+            $response = $this->redirectToPostedUrl();
+        }
+
+        return $response;
+    }
+
+    /**
+     * @param $request
+     * @param $exception
+     * @return Response
+     * @throws BadRequestHttpException
+     */
+    private function renderErrorResponse(Request $request, Exception $exception): Response
+    {
+        if ($request->getIsAjax()) {
+            $response = $this->asJson([
+                'error' => $exception->getMessage(),
+                'code' => $exception->getCode(),
+            ]);
+
+            $response->setStatusCode(500);
+
+        } else {
+            Craft::$app->getSession()->setError($exception->getMessage());
+            $response = $this->redirectToPostedUrl();
+        }
+
+        return $response;
     }
 }
