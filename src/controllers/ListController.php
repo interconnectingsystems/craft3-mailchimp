@@ -36,32 +36,7 @@ class ListController extends Controller
 
             $listIds = $this->getListIds($request);
             $email = $this->getEmail($request);
-
-            $memberData = [
-                'email_address' => $email,
-                'status_if_new' => $request->getValidatedBodyParam('status') ?? 'subscribed',
-                'email_type' => $request->getParam('emailType', 'html'),
-                'language' => $request->getParam('language', ''),
-                'vip' => (bool)($request->getValidatedBodyParam('vip') ?? false),
-            ];
-
-            $vars = $request->getParam('vars');
-            if (!empty($vars) && is_array($vars)) {
-                $memberData['merge_fields'] = array_map('strval', $vars);
-            }
-
-            $interests = $request->getParam('interests');
-            if (!empty($interests) && is_array($interests)) {
-                $memberData['interests'] = array_map('boolval', $interests);
-            }
-
-            $location = $request->getParam('location');
-            if (isset($location['latitude']) && isset($location['longitude'])) {
-                $memberData['location'] = [
-                    'latitude' => (float)$location['latitude'],
-                    'longitude' => (float)$location['longitude'],
-                ];
-            }
+            $memberData = $this->getMemberData($email, $request);
 
             foreach (explode(',', $listIds) as $listId) {
                 if (empty($listId)) {
@@ -195,5 +170,42 @@ class ListController extends Controller
         }
 
         return $email;
+    }
+
+    /**
+     * @param $email
+     * @param $request
+     * @return array
+     */
+    private function getMemberData($email, $request): array
+    {
+        $memberData = [
+            'email_address' => $email,
+            'status_if_new' => $request->getValidatedBodyParam('status') ?? 'subscribed',
+            'email_type' => $request->getParam('emailType', 'html'),
+            'language' => $request->getParam('language', ''),
+            'vip' => (bool)($request->getValidatedBodyParam('vip') ?? false),
+        ];
+
+        $vars = $request->getParam('vars');
+        $interests = $request->getParam('interests');
+        $location = $request->getParam('location');
+
+        if (!empty($vars) && is_array($vars)) {
+            $memberData['merge_fields'] = array_map('strval', $vars);
+        }
+
+        if (!empty($interests) && is_array($interests)) {
+            $memberData['interests'] = array_map('boolval', $interests);
+        }
+
+        if (isset($location['latitude']) && isset($location['longitude'])) {
+            $memberData['location'] = [
+                'latitude' => (float)$location['latitude'],
+                'longitude' => (float)$location['longitude'],
+            ];
+        }
+
+        return $memberData;
     }
 }
