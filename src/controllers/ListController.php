@@ -7,10 +7,12 @@ use Craft;
 use craft\web\Controller;
 use craft\web\Request;
 use Exception;
+use Psr\Http\Message\ResponseInterface;
 use white\craft\mailchimp\client\commands\lists\GetLists;
 use white\craft\mailchimp\client\commands\lists\members\AddOrUpdateListMember;
 use white\craft\mailchimp\client\commands\lists\members\GetListMember;
 use white\craft\mailchimp\client\MailChimpException;
+use white\craft\mailchimp\helpers\ListControllerRequestHelper;
 use white\craft\mailchimp\MailChimpPlugin;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
@@ -39,7 +41,8 @@ class ListController extends Controller
                 throw new MethodNotAllowedHttpException();
             }
 
-            $listIds = $this->getListIds($request);
+            $requestHelper = new ListControllerRequestHelper();
+            $listIds = $requestHelper->getListIds($request);
             $email = $this->getEmail($request);
             $memberData = $this->getMemberData($email, $request);
             $this->addOrUpdateListMembers($listIds, $email, $memberData);
@@ -53,26 +56,6 @@ class ListController extends Controller
         } catch (Exception $exception) {
             return $this->renderErrorResponse($request, $exception);
         }
-    }
-
-    /**
-     * @param $request
-     * @return null
-     * @throws BadRequestHttpException
-     */
-    private function getListIds($request): null
-    {
-        $listIds = $request->getValidatedBodyParam('listId');
-
-        if (!$listIds) {
-            $listIds = MailChimpPlugin::getInstance()->getSettings()->defaultListId;
-        }
-
-        if (!$listIds) {
-            throw new BadRequestHttpException("Target MailChimp list ID not found.");
-        }
-
-        return $listIds;
     }
 
     /**
@@ -198,9 +181,11 @@ class ListController extends Controller
     public function actionCheckIfSubscribed()
     {
         $request = Craft::$app->getRequest();
+        $requestHelper = new ListControllerRequestHelper();
 
         try {
-            $listIds = $this->getListIds($request);
+
+            $listIds = $requestHelper->getListIds($request);
             $email = $this->getEmail($request);
             $member = $this->getMember($listIds, $email);
             return $this->asJson(['subscribed' => (bool)$member]);
@@ -259,7 +244,7 @@ class ListController extends Controller
 
     /**
      * @param $apiKey
-     * @return mixed|\Psr\Http\Message\ResponseInterface
+     * @return mixed|ResponseInterface
      */
     private function getLists($apiKey)
     {
