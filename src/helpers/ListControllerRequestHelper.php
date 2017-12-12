@@ -80,4 +80,18 @@ class ListControllerRequestHelper
 
         return $memberData;
     }
+
+    /**
+     * @param $request
+     * @return mixed
+     * @throws BadRequestHttpException
+     */
+    public function getApiKey($request)
+    {
+        $apiKey = $request->getParam('apiKey');
+        if (!$apiKey) {
+            throw new BadRequestHttpException();
+        }
+        return $apiKey;
+    }
 }

@@ -169,25 +169,11 @@ class ListController extends Controller
     public function actionGetLists()
     {
         $request = Craft::$app->getRequest();
-
-        $apiKey = $this->getApiKey($request);
+        $requestHelper = new ListControllerRequestHelper();
+        $apiKey = $requestHelper->getApiKey($request);
         $lists = $this->getLists($apiKey);
 
         return $this->parseLists($lists);
-    }
-
-    /**
-     * @param $request
-     * @return mixed
-     * @throws BadRequestHttpException
-     */
-    private function getApiKey($request)
-    {
-        $apiKey = $request->getParam('apiKey');
-        if (!$apiKey) {
-            throw new BadRequestHttpException();
-        }
-        return $apiKey;
     }
 
     /**
