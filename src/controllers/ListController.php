@@ -76,53 +76,6 @@ class ListController extends Controller
     }
 
     /**
-     * @param Request $request
-     * @param $data
-     * @param string $message
-     * @return Response
-     * @throws BadRequestHttpException
-     */
-    private function renderSuccessResponse(Request $request, $data, string $message): Response
-    {
-        if ($request->getIsAjax()) {
-            $response = $this->asJson($data);
-        } else {
-            Craft::$app->getSession()->setNotice($message);
-            $response = $this->redirectToPostedUrl();
-        }
-
-        return $response;
-    }
-
-    /**
-     * @param $request
-     * @param $exception
-     * @return Response
-     * @throws BadRequestHttpException
-     */
-    private function renderErrorResponse(Request $request, Exception $exception): Response
-    {
-        if ($request->getIsAjax()) {
-            $response = $this->asJson([
-                'error' => $exception->getMessage(),
-                'code' => $exception->getCode(),
-            ]);
-
-            $response->setStatusCode(500);
-
-            if ($exception instanceof HttpException) {
-                $response->setStatusCode($exception->statusCode);
-            }
-
-        } else {
-            Craft::$app->getSession()->setError($exception->getMessage());
-            $response = $this->redirectToPostedUrl();
-        }
-
-        return $response;
-    }
-
-    /**
      * @return Response
      * @throws BadRequestHttpException
      */
@@ -212,5 +165,53 @@ class ListController extends Controller
         }
 
         return $this->asJson($data);
+    }
+
+
+    /**
+     * @param Request $request
+     * @param $data
+     * @param string $message
+     * @return Response
+     * @throws BadRequestHttpException
+     */
+    private function renderSuccessResponse(Request $request, $data, string $message): Response
+    {
+        if ($request->getIsAjax()) {
+            $response = $this->asJson($data);
+        } else {
+            Craft::$app->getSession()->setNotice($message);
+            $response = $this->redirectToPostedUrl();
+        }
+
+        return $response;
+    }
+
+    /**
+     * @param $request
+     * @param $exception
+     * @return Response
+     * @throws BadRequestHttpException
+     */
+    private function renderErrorResponse(Request $request, Exception $exception): Response
+    {
+        if ($request->getIsAjax()) {
+            $response = $this->asJson([
+                'error' => $exception->getMessage(),
+                'code' => $exception->getCode(),
+            ]);
+
+            $response->setStatusCode(500);
+
+            if ($exception instanceof HttpException) {
+                $response->setStatusCode($exception->statusCode);
+            }
+
+        } else {
+            Craft::$app->getSession()->setError($exception->getMessage());
+            $response = $this->redirectToPostedUrl();
+        }
+
+        return $response;
     }
 }
