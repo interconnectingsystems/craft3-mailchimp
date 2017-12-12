@@ -43,7 +43,7 @@ class ListController extends Controller
 
             $requestHelper = new ListControllerRequestHelper();
             $listIds = $requestHelper->getListIds($request);
-            $email = $this->getEmail($request);
+            $email = $requestHelper->getEmail($request);
             $memberData = $this->getMemberData($email, $request);
             $this->addOrUpdateListMembers($listIds, $email, $memberData);
 
@@ -58,21 +58,6 @@ class ListController extends Controller
         }
     }
 
-    /**
-     * @param $request
-     * @return mixed
-     * @throws BadRequestHttpException
-     */
-    private function getEmail(Request $request)
-    {
-        $email = $request->getParam('email');
-
-        if (!$email) {
-            throw new BadRequestHttpException("Email address is not specified.");
-        }
-
-        return $email;
-    }
 
     /**
      * @param $email
@@ -186,7 +171,7 @@ class ListController extends Controller
         try {
 
             $listIds = $requestHelper->getListIds($request);
-            $email = $this->getEmail($request);
+            $email = $requestHelper->getEmail($request);
             $member = $this->getMember($listIds, $email);
             return $this->asJson(['subscribed' => (bool)$member]);
         } catch (Exception $exception) {

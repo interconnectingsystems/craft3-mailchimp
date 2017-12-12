@@ -27,4 +27,21 @@ class ListControllerRequestHelper
         return $listIds;
     }
 
+
+    /**
+     * @param $request
+     * @return mixed
+     * @throws BadRequestHttpException
+     */
+    public function getEmail(Request $request)
+    {
+        $email = $request->getParam('email');
+
+        if (!$email) {
+            throw new BadRequestHttpException("Email address is not specified.");
+        }
+
+        return $email;
+    }
+
 }
