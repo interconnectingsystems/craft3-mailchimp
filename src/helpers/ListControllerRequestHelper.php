@@ -44,4 +44,40 @@ class ListControllerRequestHelper
         return $email;
     }
 
+    /**
+     * @param $email
+     * @param $request
+     * @return array
+     */
+    public function getMemberData(string $email, Request $request): array
+    {
+        $memberData = [
+            'email_address' => $email,
+            'status_if_new' => $request->getValidatedBodyParam('status') ?? 'subscribed',
+            'email_type' => $request->getParam('emailType', 'html'),
+            'language' => $request->getParam('language', ''),
+            'vip' => (bool)($request->getValidatedBodyParam('vip') ?? false),
+        ];
+
+        $vars = $request->getParam('vars');
+        $interests = $request->getParam('interests');
+        $location = $request->getParam('location');
+
+        if (!empty($vars) && is_array($vars)) {
+            $memberData['merge_fields'] = array_map('strval', $vars);
+        }
+
+        if (!empty($interests) && is_array($interests)) {
+            $memberData['interests'] = array_map('boolval', $interests);
+        }
+
+        if (isset($location['latitude']) && isset($location['longitude'])) {
+            $memberData['location'] = [
+                'latitude' => (float)$location['latitude'],
+                'longitude' => (float)$location['longitude'],
+            ];
+        }
+
+        return $memberData;
+    }
 }
