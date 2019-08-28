@@ -1,5 +1,5 @@
 {
-    "name": "white-nl/craft3-mailchimp",
+    "name": "oberonamsterdam/craft3-mailchimp",
     "description": "MailChimp integration for Craft CMS",
     "type": "craft-plugin",
     "license": "BSD-3-Clause",
