@@ -4,7 +4,7 @@
     "type": "craft-plugin",
     "license": "BSD-3-Clause",
     "require": {
-        "craftcms/cms": "~3.0.0-beta.23",
+        "craftcms/cms": "^3.0",
         "guzzlehttp/guzzle": "~6.0",
         "beberlei/assert": "^2.7"
     },
